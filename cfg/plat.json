@@ -1,0 +1,13 @@
+{
+    "flag":"nb_platcfg",
+    "plugin":[
+        "test_plugin1.so",
+        "test_plugin2.so"
+    ],
+    "log":{
+        "filter":[
+            {"key":"console","expr":"*","listener":{"key":"console"}},
+            {"key":"warnfile","expr":"*","listener":{"key":"warnfile","path":"warning.txt"}}
+        ]
+    }
+}

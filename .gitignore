@@ -1,0 +1,89 @@
+# =========================
+# cmake
+# =========================
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+Makefile
+cmake_install.cmake
+install_manifest.txt
+*.cmake
+CTestTestfile.cmake
+
+# build 
+build/
+_build/
+out/
+bin/
+!bin/.gitkeep  # 可选：保留空目录占位文件
+lib/
+!lib/.gitkeep
+bin64/
+
+# Unix 
+*.a
+*.out
+*.so
+*.so.*
+*.dylib
+
+# Windows
+*.exe
+*.dll
+*.lib
+*.exp
+*.suo
+*.user
+
+# =========================
+#   Temp file
+# =========================
+*~
+*.swp
+*.swo
+*.bak
+
+
+.DS_Store
+Thumbs.db
+__pycache__/
+
+*.log
+
+# =========================
+# IDE
+# =========================
+# VSCode
+.vscode/
+!.vscode/settings.json  # 可选：共享基础设置
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# CLion
+.idea/
+cmake-build-*/
+
+# Visual Studio
+.vs/
+*.vcxproj*
+*.sln
+*.filters
+x64/
+Win32/
+Release/
+Debug/
+ipch/
+*.opensdf
+*.sdf
+*.db
+*.VC.db
+
+# Xcode
+*.xcodeproj/
+*.xcuserstate
+*.xcworkspace/
+xcuserdata/
+
+*.app
+

@@ -1,0 +1,122 @@
+// *************************************************************************
+// [Author]		xiong.qiang
+// [Date]		2025-03-01
+// [Describe]	Platform Implementation
+// [Copyright]  xiong.qiang
+// [Brief]      Core platform initialization and management
+// *************************************************************************
+#include "platform.hpp"
+#include "core/sys.hpp"
+#include "plugin_admin.hpp"
+#include "nlohmann/json.hpp"
+#include "log.hpp"
+#include "config.hpp"
+#include "event.hpp"
+#include "nb.hpp"
+#include "mem_pool.hpp"
+
+NB_GLOBAL()
+
+namespace nb {
+
+void*               g_onlyFlag = nullptr; 
+PluginAdmin         g_pluginAdmin;
+Log                 g_logObj;
+bool                g_working = true;
+std::thread         g_mainThread;
+
+Event               g_evt;
+ThreadPoolAdmin*    g_threadPoolAdmin = ThreadPoolAdmin::instance();
+MemPool             g_memPool;
+
+void main_worker(Platform *p){
+    auto test_flag = 0;
+    while(g_working){
+        g_logObj.pump();
+        x::sleep(1);
+        if(((test_flag++)%10)==0){
+            LOG_INFO("test","haha,wai xin ren 66666,777777,8888,9999");
+        }
+        if(((test_flag++)%30)==0){
+            LOG_WARN("warn","warn,wai xin ren 66666,777777,8888,9999");
+        }
+    }
+}
+
+void config_log(const nlohmann::json &j){
+    if(j.contains("filter")){
+        auto const& flt = j["filter"];
+        for(auto i = 0;i < flt.size();++i){
+            auto s = flt.at(i).dump(4);
+            if(!g_logObj.addFilter(s))
+                std::cerr<<"Log add filter = "<<s<<" , failed !"<<std::endl;
+        }
+    }
+}
+
+x::Result Platform::init(x::cStr &cfgPath)
+{
+    if(sys::has_only(_fmt("nb:{}",sys::proc_id())))
+        return x::Result(1,"Platform already inited !");
+    g_log = &g_logObj;
+    std::ifstream f(PATH_CFG_PLAT);
+    auto j = nlohmann::json::parse(f);
+    if(j.contains("plugin")){
+        auto plugins = j["plugin"];
+        std::string s = "\n ------------- load plugin --------------\n";
+        for(auto& p : plugins){
+            auto name = p.get<std::string>();
+            auto plg = g_pluginAdmin.load(name);
+            if(plg != nullptr)
+                s += _fmt("[OK] \t {}, \t{}\n",name,plg->info());
+            else
+                s += _fmt("[FAIL] \t {}",name);
+        }
+        LOG_INFO("load_plugin",s);
+    }
+    if(j.contains("log"))
+        config_log(j["log"]);
+    g_mainThread = std::thread(main_worker,this);
+    g_mainThread.detach();
+    g_memory = Memory::instance();
+    return x::Result::OK();
+}
+
+void Platform::stop()
+{
+    if(g_mainThread.joinable())
+        g_mainThread.join();
+}
+
+// ----------------------- I_Ctx -----------------------
+I_Evt*      Platform::evt()                   const noexcept
+{
+    return &g_evt;
+}
+
+I_Log*      Platform::log()                   const noexcept
+{
+    return &g_logObj;
+}
+
+I_MemPool*  Platform::memPool()               const noexcept
+{
+    return &g_memPool;
+}
+
+ThreadPoolAdmin* Platform::threadPoolAdmin()  const noexcept
+{
+    return g_threadPoolAdmin;
+}
+
+I_PluginAdmin* Platform::pluginAdmin()  const noexcept
+{
+    return nullptr;
+}
+
+void        Platform::exit(x::cStr &info)const noexcept 
+{
+
+}
+
+} // namespace nb

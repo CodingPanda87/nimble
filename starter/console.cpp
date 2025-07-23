@@ -12,6 +12,6 @@ int main() {
         x::sleep(100);
     }
     platform.stop();
-    std::cout << "Hello, World!" << std::endl;
+    std::cerr << x::Time::now().to_string() << std::endl;
     return 0;
 }

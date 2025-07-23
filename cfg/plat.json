@@ -7,7 +7,8 @@
     "log":{
         "filter":[
             {"key":"console","expr":"*","listener":{"key":"console"}},
-            {"key":"warnfile","expr":"*","listener":{"key":"warnfile","path":"warning.txt"}}
+            {"key":"warnfile","expr":"*","listener":{"key":"warnfile","path":"warning.txt"}},
+            {"key":"all","expr":"*","listener":{"key":"all","path":"log.txt"}}
         ]
     }
 }

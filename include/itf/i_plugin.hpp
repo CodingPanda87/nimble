@@ -20,7 +20,7 @@ public:
     virtual ~I_Plugin() = default;
 
     virtual x::Result   init(I_Ctx *i)              = 0;
-    virtual void        pump()                      = 0;
+    virtual bool        pump()                      = 0; // return false = plugin is dead
     virtual void        uninit()                    = 0;
     virtual x::cStr&    info()                      = 0;
     virtual x::cStr&    name()                      = 0;

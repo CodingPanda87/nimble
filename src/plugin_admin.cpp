@@ -38,16 +38,7 @@ PluginAdmin::PluginAdmin():I_PluginAdmin() {
 }
 
 PluginAdmin::~PluginAdmin() {
-    // Clean up all loaded plugins
-    for (auto& pair : mPluginHandles) {
-#ifdef _WIN32
-        FreeLibrary((HMODULE)pair.second);
-#else
-        dlclose(pair.second);
-#endif
-        delete pair.first;
-    }
-    mPluginHandles.clear();
+    unloadAll();
 }
 
 I_Plugin* PluginAdmin::load(x::cStr& path) {
@@ -67,6 +58,7 @@ I_Plugin* PluginAdmin::load(x::cStr& path) {
     // Unix implementation
     void* handle = dlopen(path.c_str(), RTLD_LAZY);
     if (!handle) {
+        mError = dlerror();
         return nullptr;
     }
     
@@ -125,6 +117,7 @@ I_Plugin* PluginAdmin::plugin(x::cStr& name) {
 
 void PluginAdmin::unloadAll() {
     for (auto& pair : mPluginHandles) {
+        pair.first->uninit();
         FreeLib(pair.second);
     }
     mPluginHandles.clear();

@@ -22,6 +22,10 @@ public:
 
     void unloadAll();
 
+    std::string error() const{
+        return mError;
+    }
+
     // ---------- I_PluginAdmin ----------
     
     I_Plugin * load(x::cStr& path)   override;
@@ -32,6 +36,7 @@ public:
 private:
 
     std::map<I_Plugin*, void*> mPluginHandles;  // Stores plugin instances and their handles
+    std::string                mError;         
 };
 
 } // namespace nb

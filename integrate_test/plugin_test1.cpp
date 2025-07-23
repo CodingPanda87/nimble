@@ -1,12 +1,15 @@
 #include "itf/i_plugin.hpp"
 #include "itf/i_ctx.hpp"
 #include "itf/i_log.hpp"
+#include "itf/i_evt.hpp"
 #include <string>
 #include "api.hpp"
 
 namespace nb {
 
 I_Log* g_log = nullptr;
+std::thread g_thread;
+bool   g_running = true;
 
 class TestPlugin1 : public I_Plugin {
 public:
@@ -17,21 +20,35 @@ public:
         g_log = ctx->log();
         if (!g_log) 
             return x::Result(1,"Log interface not found");
+        g_thread = std::thread([&,ctx](){
+            int i = 0;
+            while (g_running) {
+                ctx->evt()->pub(_make_msg("food","src1"),x::Struct::One(i++));
+                LOG_INFO("MakeFood",_fmt("Num:{}",i));
+                int cnt = 0;
+                while(g_running && cnt++ < 3)
+                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            }
+        });
+        g_thread.detach();
         return x::Result::OK();
     }
 
-    void pump() override {
+    bool pump() override {
         LOG_INFO("PluginPump","Test Plugin 1 pump");
-        // Test plugin 1 pump implementation
+        return true;
     }
 
     void uninit() override {
         LOG_INFO("uninit","Test Plugin 1 uninit");
-        // Cleanup resources
+        g_running = false;
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        if(g_thread.joinable())
+            g_thread.join();
     }
 
     x::cStr& info() override {
-        static std::string info = "Test Plugin 1 for nimble framework";
+        static std::string info = "producer plugin";
         return info;
     }
 

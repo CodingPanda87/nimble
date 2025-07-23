@@ -33,13 +33,7 @@ void main_worker(Platform *p){
     auto test_flag = 0;
     while(g_working){
         g_logObj.pump();
-        x::sleep(1);
-        if(((test_flag++)%10)==0){
-            LOG_INFO("test","haha,wai xin ren 66666,777777,8888,9999");
-        }
-        if(((test_flag++)%30)==0){
-            LOG_WARN("warn","warn,wai xin ren 66666,777777,8888,9999");
-        }
+        x::sleep(3);
     }
 }
 
@@ -59,18 +53,24 @@ x::Result Platform::init(x::cStr &cfgPath)
     if(sys::has_only(_fmt("nb:{}",sys::proc_id())))
         return x::Result(1,"Platform already inited !");
     g_log = &g_logObj;
+    LOG_INFO("hello"," ^_^ NB ^_^");
     std::ifstream f(PATH_CFG_PLAT);
     auto j = nlohmann::json::parse(f);
     if(j.contains("plugin")){
         auto plugins = j["plugin"];
         std::string s = "\n ------------- load plugin --------------\n";
         for(auto& p : plugins){
-            auto name = p.get<std::string>();
-            auto plg = g_pluginAdmin.load(name);
-            if(plg != nullptr)
-                s += _fmt("[OK] \t {}, \t{}\n",name,plg->info());
+            auto path = p.get<std::string>();
+            if(path.find("/") == std::string::npos)
+                path = sys::proc_dir() + "/" + path;
+            auto plg = g_pluginAdmin.load(path);
+            if(plg != nullptr){
+                s += _fmt("[OK] \t {}, \t{}\n",path,plg->info());
+                plg->init(this);
+            }
             else
-                s += _fmt("[FAIL] \t {}",name);
+                s += _fmt("[FAIL] \t {} \tError : {}\n",path,g_pluginAdmin.error());
+
         }
         LOG_INFO("load_plugin",s);
     }
@@ -84,8 +84,12 @@ x::Result Platform::init(x::cStr &cfgPath)
 
 void Platform::stop()
 {
+    g_pluginAdmin.unloadAll();
     if(g_mainThread.joinable())
         g_mainThread.join();
+    LOG_INFO("goodbye"," ^_^ NB ^_^");
+    g_logObj.flush();
+    g_logObj.enable(false);
 }
 
 // ----------------------- I_Ctx -----------------------
@@ -111,12 +115,13 @@ ThreadPoolAdmin* Platform::threadPoolAdmin()  const noexcept
 
 I_PluginAdmin* Platform::pluginAdmin()  const noexcept
 {
-    return nullptr;
+    return &g_pluginAdmin;
 }
 
 void        Platform::exit(x::cStr &info)const noexcept 
 {
-
+    g_working = false;
+    LOG_INFO("exit",info);
 }
 
 } // namespace nb

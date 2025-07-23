@@ -1,9 +1,11 @@
 #include "itf/i_plugin.hpp"
 #include "itf/i_ctx.hpp"
+#include "itf/i_log.hpp"
+#include "itf/i_evt.hpp"
 #include <string>
 #include <iostream>
 #include "api.hpp"
-#include "itf/i_log.hpp"
+
 
 namespace nb {
 
@@ -16,19 +18,26 @@ public:
 
     x::Result init(I_Ctx* ctx) override {
         std::cout << "TestPlugin2 initialized" << std::endl;
+        g_log = ctx->log();
+        ctx->evt()->sub("food", "TestPlugin2",
+            [](const EvtMsg& msg, const x::Struct& d) -> x::Result {
+                LOG_INFO("eat food",_fmt("num:{}",d.getOnly1<int>()));
+                return x::Result::OK();
+            });
         return x::Result::OK();
     }
 
-    void pump() override {
+    bool pump() override {
         counter++;
+        return true;
     }
 
     void uninit() override {
-        std::cout << "TestPlugin2 uninitialized, counter was: " << counter << std::endl;
+        LOG_INFO("uninit","Test Plugin 2 uninit");
     }
 
     x::cStr& info() override {
-        static std::string info = "Test Plugin 2 with counter functionality";
+        static std::string info = "Consumer plugin";
         return info;
     }
 

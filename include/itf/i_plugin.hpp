@@ -24,13 +24,6 @@ public:
     virtual void        uninit()                    = 0;
     virtual x::cStr&    info()                      = 0;
     virtual x::cStr&    name()                      = 0;
-    virtual void*       itfPtr(x::cStr& name) 
-                                     const noexcept = 0;
-
-    template<typename T>
-    T * itf(x::cStr& name) const noexcept{
-        return static_cast<T*>(itfPtr(name));
-    }
 
 protected:
     I_Plugin() : ITF("I_Plugin", VER_PLUGIN, VER_PLUGIN_MIN){}

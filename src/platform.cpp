@@ -124,4 +124,19 @@ void        Platform::exit(x::cStr &info)const noexcept
     LOG_INFO("exit",info);
 }
 
+x::Result   Platform::regItf(x::cStr& name, ITF *itf) noexcept 
+{
+    return x::Result::OK();
+}
+
+ITF*        Platform::getItf(x::cStr& name)   const noexcept
+{
+    return nullptr;
+}
+
+void        Platform::unregItf(x::cStr& name) const noexcept
+{
+
+}
+
 } // namespace nb

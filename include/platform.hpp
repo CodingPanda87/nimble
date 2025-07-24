@@ -29,6 +29,12 @@ public:
 
     void        exit(x::cStr &info = "")const noexcept override;
 
+    // --------------------- Admin ITF ---------------------
+    x::Result   regItf(x::cStr& name, 
+                       ITF *itf)              noexcept override;
+    ITF*        getItf(x::cStr& name)   const noexcept override;
+    void        unregItf(x::cStr& name) const noexcept override;
+
 protected:
 
 };

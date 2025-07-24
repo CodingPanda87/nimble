@@ -46,10 +46,6 @@ public:
         return name;
     }
 
-    void* itfPtr(x::cStr& name) const noexcept override {
-        return nullptr;
-    }
-
 private:
     int counter;
 };

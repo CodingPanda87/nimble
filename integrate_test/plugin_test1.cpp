@@ -57,9 +57,6 @@ public:
         return name;
     }
 
-    void* itfPtr(x::cStr& name) const noexcept override {
-        return nullptr;
-    }
 };
 
 // Plugin entry point

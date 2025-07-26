@@ -2,7 +2,7 @@
 #include "nb.hpp"
 
 int main() {
-    nb::Platform platform;
+    auto& platform =  *nb::Platform::instance();
     if(!platform.init("cfg.json")){
         std::cout << "platform init failed" << std::endl;
         return 1;

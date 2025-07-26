@@ -36,7 +36,7 @@ public:
     virtual x::Result   regItf(x::cStr& name, 
                                ITF *itf)              noexcept = 0;
     virtual ITF*        getItf(x::cStr& name)   const noexcept = 0;
-    virtual void        unregItf(x::cStr& name) const noexcept = 0;
+    virtual void        unregItf(x::cStr& name)       noexcept = 0;
     template<typename T>
     T*                  itfT(x::cStr& name)     const noexcept {
         return dynamic_cast<T*>(getItf(name));

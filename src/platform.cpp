@@ -48,6 +48,12 @@ void config_log(const nlohmann::json &j){
     }
 }
 
+Platform*  Platform::instance()
+{
+    static Platform s;
+    return &s;
+}
+
 x::Result Platform::init(x::cStr &cfgPath)
 {
     if(sys::has_only(_fmt("nb:{}",sys::proc_id())))
@@ -126,17 +132,28 @@ void        Platform::exit(x::cStr &info)const noexcept
 
 x::Result   Platform::regItf(x::cStr& name, ITF *itf) noexcept 
 {
+    std::unique_lock<std::shared_mutex> lk(mtx_);
+    if(itfs_.find(name) != itfs_.end())
+        return x::Result(1,_fmt("Itf = {} already registed !",name));
+    itfs_[name] = itf;
     return x::Result::OK();
 }
 
 ITF*        Platform::getItf(x::cStr& name)   const noexcept
 {
+    std::shared_lock<std::shared_mutex> lk(mtx_);
+    auto it = itfs_.find(name);
+    if(it != itfs_.end())
+        return it->second;
     return nullptr;
 }
 
-void        Platform::unregItf(x::cStr& name) const noexcept
+void        Platform::unregItf(x::cStr& name)  noexcept
 {
-
+    std::unique_lock<std::shared_mutex> lk(mtx_);
+    auto it = itfs_.find(name);
+    if(it != itfs_.end())
+        itfs_.erase(it);
 }
 
 } // namespace nb

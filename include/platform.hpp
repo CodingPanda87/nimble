@@ -8,12 +8,16 @@
 #pragma once
 
 #include "itf/i_ctx.hpp"
+#include <shared_mutex>
+#include <unordered_map>
 
 namespace nb {
 
 class Platform : public I_Ctx {
 public:
-    Platform() : I_Ctx() {}
+    ~Platform() override {}
+
+    static Platform*  instance();
 
     x::Result   init(x::cStr &cfgPath);
     void        stop();
@@ -33,10 +37,13 @@ public:
     x::Result   regItf(x::cStr& name, 
                        ITF *itf)              noexcept override;
     ITF*        getItf(x::cStr& name)   const noexcept override;
-    void        unregItf(x::cStr& name) const noexcept override;
+    void        unregItf(x::cStr& name)       noexcept override;
 
 protected:
+    Platform():I_Ctx() {}
 
+    mutable std::shared_mutex           mtx_;
+    std::unordered_map<x::str, ITF*>   itfs_;
 };
 
 } // namespace nb

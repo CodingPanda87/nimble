@@ -31,6 +31,7 @@ public:
                         threadPoolAdmin()       const noexcept = 0;
     virtual I_PluginAdmin* 
                         pluginAdmin()           const noexcept = 0;
+    virtual bool        isRunning()             const noexcept = 0;
 
     // --------------------- Admin ITF ---------------------
     virtual x::Result   regItf(x::cStr& name, 
@@ -42,7 +43,7 @@ public:
         return dynamic_cast<T*>(getItf(name));
     }
 
-    virtual void        exit(x::cStr& info = "")const noexcept = 0;
+    virtual void        exit(x::cStr& info = "")      noexcept = 0;
 
 protected:
     I_Ctx():ITF("I_CTX",VER_CTX,VER_CTX_MIN) {}

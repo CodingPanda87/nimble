@@ -22,7 +22,6 @@ namespace nb {
 void*               g_onlyFlag = nullptr; 
 PluginAdmin         g_pluginAdmin;
 Log                 g_logObj;
-bool                g_working = true;
 std::thread         g_mainThread;
 
 Event               g_evt;
@@ -30,9 +29,8 @@ ThreadPoolAdmin*    g_threadPoolAdmin = ThreadPoolAdmin::instance();
 MemPool             g_memPool;
 
 void main_worker(Platform *p){
-    auto test_flag = 0;
-    while(g_working){
-        g_logObj.pump();
+    while(p->isRunning()){
+        p->pump();
         x::sleep(3);
     }
 }
@@ -54,7 +52,7 @@ Platform*  Platform::instance()
     return &s;
 }
 
-x::Result Platform::init(x::cStr &cfgPath)
+x::Result Platform::init(x::cStr &cfgPath, const bool& isUI)
 {
     if(sys::has_only(_fmt("nb:{}",sys::proc_id())))
         return x::Result(1,"Platform already inited !");
@@ -82,14 +80,23 @@ x::Result Platform::init(x::cStr &cfgPath)
     }
     if(j.contains("log"))
         config_log(j["log"]);
-    g_mainThread = std::thread(main_worker,this);
-    g_mainThread.detach();
+    if(isUI){
+        g_mainThread = std::thread(main_worker,this);
+        g_mainThread.detach();
+    }
     g_memory = Memory::instance();
+    running_ = true;
     return x::Result::OK();
+}
+
+void Platform::pump() // only for console
+{
+    g_logObj.pump();
 }
 
 void Platform::stop()
 {
+    if(running_) running_ = false;
     g_pluginAdmin.unloadAll();
     if(g_mainThread.joinable())
         g_mainThread.join();
@@ -124,9 +131,9 @@ I_PluginAdmin* Platform::pluginAdmin()  const noexcept
     return &g_pluginAdmin;
 }
 
-void        Platform::exit(x::cStr &info)const noexcept 
+void        Platform::exit(x::cStr &info)     noexcept 
 {
-    g_working = false;
+    running_ = false;
     LOG_INFO("exit",info);
 }
 

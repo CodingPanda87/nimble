@@ -19,7 +19,8 @@ public:
 
     static Platform*  instance();
 
-    x::Result   init(x::cStr &cfgPath);
+    x::Result   init(x::cStr &cfgPath,const bool& isUI);
+    void        pump(); // only for console
     void        stop();
 
     // ----------------------- I_Ctx -----------------------
@@ -31,7 +32,10 @@ public:
     I_PluginAdmin* 
                 pluginAdmin()           const noexcept override;
 
-    void        exit(x::cStr &info = "")const noexcept override;
+    bool        isRunning()             const noexcept override{
+        return running_;
+    }
+    void        exit(x::cStr &info = "")      noexcept override;
 
     // --------------------- Admin ITF ---------------------
     x::Result   regItf(x::cStr& name, 
@@ -44,6 +48,7 @@ protected:
 
     mutable std::shared_mutex           mtx_;
     std::unordered_map<x::str, ITF*>   itfs_;
+    bool                               running_ = false;  
 };
 
 } // namespace nb

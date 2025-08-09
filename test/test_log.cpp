@@ -254,15 +254,14 @@ TEST_F(LogTest, TimeFilter) {
     };
     MockListener listener;
     log->addListener("mock", &listener);
-    auto now = x::Time::now();
-    _prtln("now: {}", now.to_string());
-    now = now + 100000us;
-    _prtln("now: {}", now.to_string());
-    log->addFilter(x::vfmt(R"({{"key":"filter","expr":" (time>{}) ","listener":{{"key":"mock"}}}})", now.to_string()));
-    auto i = 6;
-    while(i-->0){
+    // Set filter time 100ms in future
+    auto filterTime = x::Time::now() + 40000us;
+    _prtln("filterTime: {}", filterTime.to_string());
+    log->addFilter(x::vfmt(R"({{"key":"filter","expr":" (time>{}) ","listener":{{"key":"mock"}}}})", filterTime.to_string()));
+    // Now log messages - all should have timestamps after filter time
+    for(int i = 0; i < 6; i++) {
         log->info("Test", "Listener test", "test.cpp:40");
-        x::sleep(40);
+        x::sleep(30);
     }
     log->pump();
     _prtln("called: {}", listener.called);
@@ -311,4 +310,3 @@ TEST_F(LogTest, LogFile) {
     logFile.close();
     EXPECT_TRUE(std::filesystem::exists("test_log1.txt"));
 }
-

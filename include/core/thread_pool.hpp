@@ -137,7 +137,7 @@ protected:
 						if (!_run && _tasks.empty())
 							return;
 						_idlThreadNum--;
-						task = move(_tasks.front());
+						task = std::move(_tasks.front());
 						_tasks.pop();
 					}
 					{	// update active flag

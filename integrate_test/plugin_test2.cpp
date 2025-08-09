@@ -17,7 +17,6 @@ public:
     ~TestPlugin2() override = default;
 
     x::Result init(I_Ctx* ctx) override {
-        std::cout << "TestPlugin2 initialized" << std::endl;
         g_log = ctx->log();
         ctx->evt()->sub("food", "TestPlugin2",
             [](const EvtMsg& msg, const x::Struct& d) -> x::Result {

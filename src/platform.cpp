@@ -52,12 +52,25 @@ Platform*  Platform::instance()
     return &s;
 }
 
+void say_hello()
+{
+LOG_INFO("hello",R"(
+
+                                _   _   ____    
+                               | \ | | | __ )   
+                               |  \| | |  _ \   
+                               | |\  | | |_) |  
+                               |_| \_| |____/   
+
+)");
+}
+
 x::Result Platform::init(x::cStr &cfgPath, const bool& isUI)
 {
     if(sys::has_only(_fmt("nb:{}",sys::proc_id())))
         return x::Result(1,"Platform already inited !");
     g_log = &g_logObj;
-    LOG_INFO("hello"," ^_^ NB ^_^");
+    say_hello();
     std::ifstream f(PATH_CFG_PLAT);
     auto j = nlohmann::json::parse(f);
     if(j.contains("plugin")){
@@ -69,11 +82,11 @@ x::Result Platform::init(x::cStr &cfgPath, const bool& isUI)
                 path = sys::proc_dir() + "/" + path;
             auto plg = g_pluginAdmin.load(path);
             if(plg != nullptr){
-                s += _fmt("[OK] \t {}, \t{}\n",path,plg->info());
+                s += _fmt("[OK] \t {}, \t{}\n",x::file_name(path),plg->info());
                 plg->init(this);
             }
             else
-                s += _fmt("[FAIL] \t {} \tError : {}\n",path,g_pluginAdmin.error());
+                s += _fmt("[FAIL] \t {} \tError : {}\n",x::file_name(path),g_pluginAdmin.error());
 
         }
         LOG_INFO("load_plugin",s);

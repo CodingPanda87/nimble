@@ -1,4 +1,4 @@
-#include <iostream>
+﻿#include <iostream>
 #include "nb.hpp"
 #include <atomic>
 #ifdef _WIN32
@@ -49,7 +49,7 @@ void signal_handler(int signal) {
             g_exit_requested = true;
             break;
             
-        case SIGQUIT:   // Ctrl+\
+        case SIGQUIT:   // Ctrl+[\]
             std::cout << "\n[信号] 退出请求 (SIGQUIT)" << std::endl;
             g_exit_requested = true;
             break;

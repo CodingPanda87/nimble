@@ -62,8 +62,8 @@ void Log::pump()
         logsToProcess.swap(logs_);
     }
 
-    for(auto& item : logsToProcess) {
-        for(auto& filter : filters_) {
+    for(const auto& item : logsToProcess) {
+        for(const auto& filter : filters_) {
             if(filter.check(item) && filter.listener) {
                 filter.listener->onLog(item);
             }

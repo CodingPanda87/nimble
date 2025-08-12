@@ -42,9 +42,10 @@ public:
         pool_ = pool;
     }
 
-    void eixt() noexcept {
+    void exit() noexcept {
         stopflag_ = true;
         pool_ = nullptr;
+        subscribers_.clear();
     }
 
     // ------------------- I_Evt -------------------

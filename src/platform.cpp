@@ -93,12 +93,12 @@ x::Result Platform::init(x::cStr &cfgPath, const bool& isUI)
     }
     if(j.contains("log"))
         config_log(j["log"]);
+    running_ = true;
     if(isUI){
         g_mainThread = std::thread(main_worker,this);
         g_mainThread.detach();
     }
     g_memory = Memory::instance();
-    running_ = true;
     return x::Result::OK();
 }
 
@@ -110,6 +110,7 @@ void Platform::pump() // only for console
 void Platform::stop()
 {
     if(running_) running_ = false;
+    g_evt.exit();
     g_pluginAdmin.unloadAll();
     if(g_mainThread.joinable())
         g_mainThread.join();

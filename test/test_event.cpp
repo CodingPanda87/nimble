@@ -243,7 +243,7 @@ TEST(EventTest, CleanShutdown) {
     MockSubscriber sub;
     
     event.sub("shutdown.test", &sub);
-    event.eixt();
+    event.exit();
     event.pub(EvtMsg{"shutdown.test","1","2"});
     x::sleep(10);
     

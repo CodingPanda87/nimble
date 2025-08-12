@@ -2,7 +2,8 @@
     "flag":"nb_platcfg",
     "plugin":[
         "test_plugin1.so",
-        "test_plugin2.so"
+        "test_plugin2.so",
+        "test_plugin_QtUI.so"
     ],
     "log":{
         "filter":[

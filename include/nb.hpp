@@ -8,6 +8,7 @@
 #pragma once
 
 #include "config.hpp"
+#include "api.hpp"
 
 #include "core/file.hpp"
 #include "core/memory.hpp"

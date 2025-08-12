@@ -47,7 +47,7 @@ enum class MSG_HANDLE{
     ASYNC
 };
 
-#define _make_msg(msg,src) EvtMsg(msg,src,_code_info())
+#define _make_msg(msg,src) nb::EvtMsg(msg,src,_code_info())
 
 class I_EvtSub : public ITF {
 public:

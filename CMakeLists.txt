@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 project(nb)
 
+find_package(Qt5 REQUIRED COMPONENTS Widgets)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -101,6 +103,25 @@ target_include_directories(test_plugin2
 )
 set_target_properties(test_plugin2 PROPERTIES PREFIX "")
 
+add_library(test_plugin_QtUI MODULE
+    integrate_test/plugin_qtUI.cpp
+)
+target_compile_definitions(test_plugin_QtUI
+    PRIVATE 
+        NB_EXPORT
+)
+target_include_directories(test_plugin_QtUI
+    PRIVATE
+        ${CMAKE_SOURCE_DIR}/include
+        ${CMAKE_SOURCE_DIR}/3rd
+)
+set_target_properties(test_plugin_QtUI PROPERTIES PREFIX "")
+target_link_libraries(test_plugin_QtUI
+    PRIVATE
+    Qt5::Widgets
+    ${PROJECT_NAME}
+)
+
 # ------------ nb starter ------------
 add_executable(consolestarter
                ${CMAKE_SOURCE_DIR}/starter/console.cpp
@@ -114,3 +135,19 @@ target_include_directories(consolestarter
 target_link_libraries(consolestarter 
                         PRIVATE
                       ${PROJECT_NAME})
+
+# Qt UI starter
+add_executable(qtuistarter
+               ${CMAKE_SOURCE_DIR}/starter/qtUI.cpp
+               )
+target_include_directories(qtuistarter
+    PRIVATE
+        ${CMAKE_SOURCE_DIR}/include
+        ${CMAKE_SOURCE_DIR}/3rd
+)
+
+target_link_libraries(qtuistarter
+    PRIVATE
+    Qt5::Widgets
+    ${PROJECT_NAME}
+)

@@ -123,4 +123,43 @@ void PluginAdmin::unloadAll() {
     mPluginHandles.clear();
 }
 
+std::string PluginAdmin::pluginInfo(x::cStr& path)
+{
+#ifdef _WIN32
+    // Windows implementation
+    HMODULE handle = LoadLibraryA(path.c_str());
+    if (!handle) {
+        return "";
+    }
+    
+    auto infoFunc = (FUNC_PLG_INFO)GetProcAddress(handle, "infoNB");
+    if (!infoFunc) {
+        FreeLibrary(handle);
+        return "";
+    }
+#else
+    // Unix implementation
+    void* handle = dlopen(path.c_str(), RTLD_LAZY);
+    if (!handle) {
+        return "";
+    }
+    
+    auto infoFunc = (FUNC_PLG_INFO)dlsym(handle, "infoNB");
+    if (!infoFunc) {
+        dlclose(handle);
+        return "";
+    }
+#endif
+
+    std::string info = infoFunc();
+
+    // close dll
+#ifdef _WIN32
+        FreeLibrary(handle);
+#else
+        dlclose(handle);
+#endif
+    return info;
+}
+
 } // namespace nb

@@ -22,6 +22,8 @@ public:
     x::Result   init(x::cStr &cfgPath,const bool& isUI);
     void        pump(); // only for console
     void        stop();
+    
+    static std::string pluginInfo(x::cStr& path);
 
     // ----------------------- I_Ctx -----------------------
     I_Evt*      evt()                   const noexcept override;

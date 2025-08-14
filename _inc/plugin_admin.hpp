@@ -26,6 +26,8 @@ public:
         return mError;
     }
 
+    static std::string pluginInfo(x::cStr& path);
+
     // ---------- I_PluginAdmin ----------
     
     I_Plugin * load(x::cStr& path)   override;

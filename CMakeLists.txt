@@ -123,30 +123,35 @@ target_link_libraries(test_plugin_QtUI
 )
 
 # ------------ nb starter ------------
-add_executable(consolestarter
+add_executable(Starter
                ${CMAKE_SOURCE_DIR}/starter/console.cpp
                )
-target_include_directories(consolestarter
+target_include_directories(Starter
     PRIVATE
         ${CMAKE_SOURCE_DIR}/include
         ${CMAKE_SOURCE_DIR}/3rd
 )
 
-target_link_libraries(consolestarter 
+target_link_libraries(Starter 
                         PRIVATE
                       ${PROJECT_NAME})
 
 # Qt UI starter
-add_executable(qtuistarter
+add_executable(StarterQUI
                ${CMAKE_SOURCE_DIR}/starter/qtUI.cpp
                )
-target_include_directories(qtuistarter
+
+if(WIN32)
+    set_target_properties(StarterQUI PROPERTIES WIN32_EXECUTABLE TRUE)
+endif()
+
+target_include_directories(StarterQUI
     PRIVATE
         ${CMAKE_SOURCE_DIR}/include
         ${CMAKE_SOURCE_DIR}/3rd
 )
 
-target_link_libraries(qtuistarter
+target_link_libraries(StarterQUI
     PRIVATE
     Qt5::Widgets
     ${PROJECT_NAME}

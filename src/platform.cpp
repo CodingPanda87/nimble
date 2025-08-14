@@ -177,4 +177,9 @@ void        Platform::unregItf(x::cStr& name)  noexcept
         itfs_.erase(it);
 }
 
+std::string Platform::pluginInfo(x::cStr& path)
+{
+    return PluginAdmin::pluginInfo(path);
+}
+
 } // namespace nb

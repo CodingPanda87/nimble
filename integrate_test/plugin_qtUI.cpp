@@ -1,7 +1,39 @@
 #include "nb.hpp"
 #include <QMainWindow>
+#include <QVBoxLayout>
+#include <QPushButton>
+#include <QLabel>
 
 NB_GLOBAL()
+
+class TestWnd: public QMainWindow {
+public:
+    TestWnd(QWidget *parent = nullptr) : QMainWindow(parent) {
+        setWindowTitle("Test Qt Window");
+        auto vlayout = new QVBoxLayout();
+        auto btn = new QPushButton("fire", this);
+        connect(btn, &QPushButton::clicked, this, [this]() {
+            cnt_++;
+            PUB_EVT_DAT("ui.test.fire", x::Struct::One(cnt_), "TestQtUI");
+            LOG_INFO("TestQtUI", _fmt("Button clicked, count: {}", cnt_));
+        });
+        SUB_EVT("ui.test.fire", "TestQtUI", [this](const nb::EvtMsg& msg, const x::Struct& d)->x::Result {
+            LOG_INFO("TestQtUI", _fmt("Received fire event, count: {}", d.getOnly1<int>()));
+            label_->setText(_fmt("shot : {}",d.getOnly1<int>()).c_str());
+            return x::Result::OK();
+        })
+        label_ = new QLabel("Hello, Qt!", this);
+        auto centralWidget = new QWidget(this);
+        vlayout->addWidget(btn);
+        vlayout->addWidget(label_);
+        centralWidget->setLayout(vlayout);
+        this->setCentralWidget(centralWidget);
+        resize(800, 600);
+    }
+
+    QLabel *label_ = nullptr;
+    int cnt_ = 0;
+};
 
 namespace nb {
 
@@ -9,15 +41,16 @@ class TesQtUI : public I_Plugin {
 public:
     TesQtUI() = default;
     ~TesQtUI() override = default;
-    QMainWindow *mainWindow = nullptr;
+    TestWnd *mainWindow = nullptr;
 
     x::Result init(I_Ctx* ctx) override {
         g_log = ctx->log();
+        g_ctx = ctx;
         if (!g_log) 
             return x::Result(1,"Log interface not found");
         ctx->evt()->sub("ui.main.init", "QtUI", [this,ctx](const EvtMsg& msg, const x::Struct& d)->x::Result {
             if(mainWindow == nullptr) {
-                mainWindow = new QMainWindow();
+                mainWindow = new TestWnd();
                 mainWindow->show();
             }
             return x::Result::OK();

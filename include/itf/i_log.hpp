@@ -90,16 +90,16 @@ protected:
 
 extern I_Log* g_log;
 
-#define LOG_DEBUG(title, message)                              g_log->debug(title, message, _code_info())
-#define LOG_INFO( title, message)                              g_log->info( title, message, _code_info())
-#define LOG_WARN( title, message)                              g_log->warn( title, message, _code_info())
-#define LOG_ERROR(title, message)                              g_log->error(title, message, _code_info())
-#define LOG_FATAL(title, message)                              g_log->fatal(title, message, _code_info())
+#define LOG_DEBUG(title, message)                              nb::g_log->debug(title, message, _code_info())
+#define LOG_INFO( title, message)                              nb::g_log->info( title, message, _code_info())
+#define LOG_WARN( title, message)                              nb::g_log->warn( title, message, _code_info())
+#define LOG_ERROR(title, message)                              nb::g_log->error(title, message, _code_info())
+#define LOG_FATAL(title, message)                              nb::g_log->fatal(title, message, _code_info())
 
-#define LOG_DEBUG_IF(condition, title, message) if (condition) g_log->debug(title, message, _code_info())
-#define LOG_INFO_IF( condition, title, message) if (condition) g_log->info( title, message, _code_info())
-#define LOG_WARN_IF( condition, title, message) if (condition) g_log->warn( title, message, _code_info())
-#define LOG_ERROR_IF(condition, title, message) if (condition) g_log->error(title, message, _code_info())
-#define LOG_FATAL_IF(condition, title, message) if (condition) g_log->fatal(title, message, _code_info())
+#define LOG_DEBUG_IF(condition, title, message) if (condition) nb::g_log->debug(title, message, _code_info())
+#define LOG_INFO_IF( condition, title, message) if (condition) nb::g_log->info( title, message, _code_info())
+#define LOG_WARN_IF( condition, title, message) if (condition) nb::g_log->warn( title, message, _code_info())
+#define LOG_ERROR_IF(condition, title, message) if (condition) nb::g_log->error(title, message, _code_info())
+#define LOG_FATAL_IF(condition, title, message) if (condition) nb::g_log->fatal(title, message, _code_info())
 
 } // namespace nb

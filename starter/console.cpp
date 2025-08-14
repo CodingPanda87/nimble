@@ -105,6 +105,20 @@ void daemon_init() {
 #endif
 
 int main(int argc, char* argv[]) {
+
+    // only dump plugin info
+    if(argc > 2){
+        if(argv[1] == std::string("--info")){
+            const auto info = std::format("[Path] = {}\n[Info] = \n\n{}\n\n",argv[2],
+                                          nb::Platform::instance()->pluginInfo(argv[2])); 
+            std::cerr << info << std::endl;
+            return 0;
+        }else{
+            std::cout << "usage: " << argv[0] << " --info <plugin_path>" << std::endl;
+            return 1;
+        }
+    }
+
 #ifdef _WIN32
     // 设置控制台事件处理函数
     SetConsoleCtrlHandler(ConsoleCtrlHandler, TRUE);

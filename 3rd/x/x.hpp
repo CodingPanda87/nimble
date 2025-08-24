@@ -87,10 +87,25 @@ template<typename... Args>
 inline void print(std::format_string<Args...> formt, Args&&... args) {
     std::cout << std::format(formt, std::forward<Args>(args)...);
 }
+
+inline void print(const char* formt) {
+    std::cout << formt;
+}
+
 template<typename... Args>
 inline void println(std::format_string<Args...> formt, Args&&... args) {
     std::cout << std::format(formt, std::forward<Args>(args)...) << std::endl;
 }
+
+inline void println(const char* formt) {
+    std::cout << formt << std::endl;
+}
+
+template<typename... Args>
+inline void println(const char* formt, Args&&... args) {
+    std::cout << std::vformat(formt, std::make_format_args(args...)) << std::endl;
+}
+
 } // namespace std
 #endif
 

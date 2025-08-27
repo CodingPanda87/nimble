@@ -7,7 +7,7 @@
 // *************************************************************************
 #pragma once
 
-# include "itf/i_plugin.hpp"
+#include "itf/i_plugin.hpp"
 
 namespace nb {
 
@@ -25,6 +25,8 @@ public:
     std::string error() const{
         return mError;
     }
+
+    void pump();
 
     static std::string pluginInfo(x::cStr& path);
 

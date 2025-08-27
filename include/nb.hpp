@@ -24,3 +24,4 @@
 #include "itf/i_ctx.hpp"
 
 #include "platform.hpp"
+#include "macro.hpp"

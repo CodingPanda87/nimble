@@ -78,4 +78,36 @@ protected:
     I_Evt(): ITF("I_Evt",VER_EVT,VER_EVT_MIN) { };
 };
 
+extern I_Evt* g_evt;
+
 } // namespace nb
+
+
+inline void SUB_EVT(x::cStr& evtName, nb::I_EvtSub* sub, const nb::MSG_HANDLE& type = nb::MSG_HANDLE::DIRECT){
+    nb::g_evt->sub(evtName, sub, type);
+}
+
+inline void SUB_EVT(x::cStr& evtName, x::cStr& subName, const nb::EvtCB& cb, const nb::MSG_HANDLE& type = nb::MSG_HANDLE::DIRECT){
+    nb::g_evt->sub(evtName, subName, cb, type);
+}
+
+inline void UNSUB_EVT(x::cStr& evtName, nb::I_EvtSub* sub){
+    nb::g_evt->unsub(evtName, sub);
+}
+
+inline void UNSUB_EVT(x::cStr& evtName, x::cStr& subName){
+    nb::g_evt->unsub(evtName, subName);
+}
+
+inline void _PUB_EVT(const nb::EvtMsg& msg, const x::Struct& d = {}){
+    nb::g_evt->pub(msg, d);
+}
+
+inline void _PUB_EVT_ONE(const nb::EvtMsg& msg, const std::any& d){
+    nb::g_evt->pub(msg, x::Struct::One(d));
+}
+
+#define PUB_EVT(msg,src,d)      _PUB_EVT(_make_msg(msg,src))
+#define PUB_EVT_ONE(msg,src,d)  _PUB_EVT_ONE(_make_msg(msg,src), d)
+
+

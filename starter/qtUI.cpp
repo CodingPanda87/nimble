@@ -1,8 +1,25 @@
 ﻿#include <QApplication>
+#include <QTimer>
 #include "nb.hpp"
+#include <fcntl.h>
+#ifdef WIN32
+#include <io.h>
+#endif
+
+class ExitSignal : public QObject
+{
+    Q_OBJECT
+public:
+    
+signals:
+    void sigExit();
+};
+
+ExitSignal  g_exitSignal;
 
 #ifdef WIN32
 #include <windows.h>
+
 // 控制台事件处理函数
 BOOL WINAPI ConsoleCtrlHandler(DWORD dwCtrlType) {
     switch (dwCtrlType) {
@@ -11,7 +28,8 @@ BOOL WINAPI ConsoleCtrlHandler(DWORD dwCtrlType) {
     case CTRL_CLOSE_EVENT:     // 控制台关闭
     case CTRL_LOGOFF_EVENT:    // 用户注销
     case CTRL_SHUTDOWN_EVENT:  // 系统关机
-        QApplication::exit(0);
+        std::cout<<""<<std::endl;
+        emit g_exitSignal.sigExit();
         return TRUE;  // 表示已处理该事件
     default:
         return FALSE; // 未处理的事件
@@ -54,10 +72,13 @@ int main(int argc, char *argv[]) {
     }
    
     QApplication app(argc, argv);
-    
+    QObject::connect(&g_exitSignal, &ExitSignal::sigExit, qApp,[&app](){
+        app.exit(0);
+    }, Qt::QueuedConnection);
     auto& platform =  *nb::Platform::instance();
-    if(!platform.init("cfg.json",true)){
-        std::cout << "platform init failed" << std::endl;
+    const auto ret = platform.init("",true);
+    if(!ret){
+        std::cout << "platform init failed:\n" << ret.message() << std::endl;
         return 1;
     }
     platform.evt()->pub(_make_msg("ui.main.init","main"),x::Struct());
@@ -71,3 +92,5 @@ int main(int argc, char *argv[]) {
     
     return app.exec();
 }
+
+#include "qtUI.moc"

@@ -140,8 +140,9 @@ int main(int argc, char* argv[]) {
     sigaction(SIGQUIT, &sa, nullptr);   // Ctrl+[\]
 #endif
     auto& platform =  *nb::Platform::instance();
-    if(!platform.init("cfg.json",false)){
-        std::cout << "platform init failed" << std::endl;
+    const auto ret = platform.init();
+    if(!ret){
+        std::cout << "platform init failed:\n" << ret.message() << std::endl;
         return 1;
     }
     while(!g_exit_requested && platform.isRunning()){

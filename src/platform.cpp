@@ -24,7 +24,7 @@ PluginAdmin         g_pluginAdmin;
 Log                 g_logObj;
 std::thread         g_mainThread;
 
-Event               g_evt;
+Event               g_evtObj;
 ThreadPoolAdmin*    g_threadPoolAdmin = ThreadPoolAdmin::instance();
 MemPool             g_memPool;
 
@@ -71,28 +71,42 @@ x::Result Platform::init(x::cStr &cfgPath, const bool& isUI)
         return x::Result(1,"Platform already inited !");
     g_log = &g_logObj;
     say_hello();
-    std::ifstream f(PATH_CFG_PLAT);
-    auto j = nlohmann::json::parse(f);
-    if(j.contains("plugin")){
-        auto plugins = j["plugin"];
-        std::string s = "\n ------------- load plugin --------------\n";
-        for(auto& p : plugins){
-            auto path = p.get<std::string>();
-            if(path.find("/") == std::string::npos)
-                path = sys::proc_dir() + "/" + path;
-            auto plg = g_pluginAdmin.load(path);
-            if(plg != nullptr){
-                s += _fmt("[OK] \t {}, \t{}\n",x::file_name(path),plg->info());
-                plg->init(this);
-            }
-            else
-                s += _fmt("[FAIL] \t {} \tError : {}\n",x::file_name(path),g_pluginAdmin.error());
+    const x::str cfgFilePath =  cfgPath == "" ? PATH_CFG_PLAT : cfgPath;
+    std::ifstream f(cfgFilePath);
+    if(!f.is_open())
+        return x::Result(1,_fmt("open cfg file = {} failed !",cfgFilePath));
+    try{
+        auto j = nlohmann::json::parse(f);
+        // ---------- load plugins ----------
+        LOG_INFO("load_plugin","will load plugin ...");
+        if(j.contains("plugin")){
+            const auto& plugins = j["plugin"];
+            std::string s = "\n ------------- load plugin --------------\n";
+            for(auto& p : plugins){
+                auto path = p.get<std::string>();
+                if(path.find("/") == std::string::npos)
+                    path = sys::proc_dir() + "/" + path;
+                auto plg = g_pluginAdmin.load(path);
+                if(plg != nullptr){
+                    s += _fmt("[OK] \t {}, \t{}\n",x::file_name(path),plg->info());
+                    try{
+                        plg->init(this);
+                    }catch(const std::exception& e){
+                        s += _fmt("[FAIL] \t {} \t Init Error : {}\n",x::file_name(path),e.what());
+                    }
+                }
+                else
+                    s += _fmt("[FAIL] \t {} \tError : {}\n",x::file_name(path),g_pluginAdmin.error());
 
+            }
+            LOG_INFO("load_plugin",s);
         }
-        LOG_INFO("load_plugin",s);
+        // ---------- config log ----------
+        if(j.contains("log"))
+            config_log(j["log"]);
+    }catch(const std::exception& e){
+        return x::Result(2,_fmt("parse cfg file = {} failed ! json error = \n {}",cfgFilePath,e.what()));
     }
-    if(j.contains("log"))
-        config_log(j["log"]);
     running_ = true;
     if(isUI){
         g_mainThread = std::thread(main_worker,this);
@@ -105,12 +119,18 @@ x::Result Platform::init(x::cStr &cfgPath, const bool& isUI)
 void Platform::pump() // only for console
 {
     g_logObj.pump();
+    try{
+        g_pluginAdmin.pump();
+    }
+    catch(const std::exception& e){
+        log()->error("pump",_s("Plugin Pump Error : ") + e.what(),_code_info());
+    }
 }
 
 void Platform::stop()
 {
     if(running_) running_ = false;
-    g_evt.exit();
+    g_evtObj.exit();
     g_pluginAdmin.unloadAll();
     if(g_mainThread.joinable())
         g_mainThread.join();
@@ -122,7 +142,7 @@ void Platform::stop()
 // ----------------------- I_Ctx -----------------------
 I_Evt*      Platform::evt()                   const noexcept
 {
-    return &g_evt;
+    return &g_evtObj;
 }
 
 I_Log*      Platform::log()                   const noexcept

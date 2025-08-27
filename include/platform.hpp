@@ -19,7 +19,8 @@ public:
 
     static Platform*  instance();
 
-    x::Result   init(x::cStr &cfgPath,const bool& isUI);
+    // default init for console and default cfg path
+    x::Result   init(x::cStr &cfgPath = "",const bool& isUI = false);
     void        pump(); // only for console
     void        stop();
     

@@ -6,7 +6,7 @@
 // [Brief]      Plugin loading and management implementation
 // *************************************************************************
 #include "../_inc/plugin_admin.hpp"
-#include "itf/i_plugin.hpp"
+#include "nb.hpp"
 #include "../3rd/x/x.hpp"
 #include <map>
 #include <string>
@@ -160,6 +160,14 @@ std::string PluginAdmin::pluginInfo(x::cStr& path)
         dlclose(handle);
 #endif
     return info;
+}
+
+void PluginAdmin::pump()
+{
+    // todo thread safe
+    for (auto& pair : mPluginHandles) {
+        pair.first->pump();
+    }
 }
 
 } // namespace nb

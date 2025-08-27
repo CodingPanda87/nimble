@@ -19,6 +19,10 @@ file(GLOB_RECURSE NB_CPPS CONFIGURE_DEPENDS
 add_library(${PROJECT_NAME} SHARED
     ${NB_CPPS}
 )
+# set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
+set_target_properties(${PROJECT_NAME} PROPERTIES
+        DEBUG_POSTFIX "_d"
+    )
 target_include_directories(${PROJECT_NAME}
           PRIVATE
             ${CMAKE_SOURCE_DIR}/include
@@ -29,6 +33,9 @@ if(WIN32)
     # 确保生成导入库 (.lib)
     set_target_properties(${PROJECT_NAME} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
 endif()
+
+# solve vs compiler no find output library sometimes
+link_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 # Enable testing
 enable_testing()
@@ -65,10 +72,6 @@ target_include_directories(${PROJECT_NAME}_test
             ${CMAKE_SOURCE_DIR}/include
             ${CMAKE_SOURCE_DIR}/3rd
           )
-
-# add_executable(${PROJECT_NAME}_demo
-#             demo.cpp
-#           )
 
 # Link with GoogleTest
 target_link_libraries(${PROJECT_NAME}_test PRIVATE gtest_main)
@@ -120,8 +123,12 @@ set_target_properties(test_plugin_QtUI PROPERTIES PREFIX "")
 target_link_libraries(test_plugin_QtUI
     PRIVATE
     Qt5::Widgets
-    ${PROJECT_NAME}
+    $<$<CONFIG:Debug>:${PROJECT_NAME}_d>
+    $<$<NOT:$<CONFIG:Debug>>:${PROJECT_NAME}>
 )
+if(UNIX)
+    target_link_libraries(test_plugin_QtUI PRIVATE -L${CMAKE_BINARY_DIR})
+endif()
 
 # ------------ nb starter ------------
 add_executable(Starter
@@ -132,15 +139,31 @@ target_include_directories(Starter
         ${CMAKE_SOURCE_DIR}/include
         ${CMAKE_SOURCE_DIR}/3rd
 )
+set_target_properties(Starter PROPERTIES
+        DEBUG_POSTFIX "_d"
+        BUILD_RPATH "$ORIGIN"
+        INSTALL_RPATH "$ORIGIN"
+    )
 
 target_link_libraries(Starter 
                         PRIVATE
-                      ${PROJECT_NAME})
+                        $<$<CONFIG:Debug>:${PROJECT_NAME}_d>
+                        $<$<NOT:$<CONFIG:Debug>>:${PROJECT_NAME}>
+                        )
+if(UNIX)
+    target_link_libraries(Starter PRIVATE -L${CMAKE_BINARY_DIR})
+endif()
 
 # Qt UI starter
 add_executable(StarterQUI
                ${CMAKE_SOURCE_DIR}/starter/qtUI.cpp
                )
+set_target_properties(StarterQUI PROPERTIES
+        DEBUG_POSTFIX "_d"
+        BUILD_RPATH "$ORIGIN"
+        INSTALL_RPATH "$ORIGIN"
+        AUTOMOC ON
+    )
 
 if(WIN32)
     set_target_properties(StarterQUI PROPERTIES WIN32_EXECUTABLE TRUE)
@@ -155,5 +178,10 @@ target_include_directories(StarterQUI
 target_link_libraries(StarterQUI
     PRIVATE
     Qt5::Widgets
-    ${PROJECT_NAME}
+    $<$<CONFIG:Debug>:${PROJECT_NAME}_d>
+    $<$<NOT:$<CONFIG:Debug>>:${PROJECT_NAME}>
 )
+
+if(UNIX)
+    target_link_libraries(StarterQUI PRIVATE -L${CMAKE_BINARY_DIR})
+endif()

@@ -49,4 +49,6 @@ protected:
     I_Ctx():ITF("I_CTX",VER_CTX,VER_CTX_MIN) {}
 };
 
+extern I_Ctx*      g_ctx;
+
 } // namespace nb

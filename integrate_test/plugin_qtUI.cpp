@@ -14,14 +14,14 @@ public:
         auto btn = new QPushButton("fire", this);
         connect(btn, &QPushButton::clicked, this, [this]() {
             cnt_++;
-            PUB_EVT_DAT("ui.test.fire", x::Struct::One(cnt_), "TestQtUI");
+            PUB_EVT_ONE("ui.test.fire", "btn",cnt_);
             LOG_INFO("TestQtUI", _fmt("Button clicked, count: {}", cnt_));
         });
         SUB_EVT("ui.test.fire", "TestQtUI", [this](const nb::EvtMsg& msg, const x::Struct& d)->x::Result {
             LOG_INFO("TestQtUI", _fmt("Received fire event, count: {}", d.getOnly1<int>()));
             label_->setText(_fmt("shot : {}",d.getOnly1<int>()).c_str());
             return x::Result::OK();
-        })
+        });
         label_ = new QLabel("Hello, Qt!", this);
         auto centralWidget = new QWidget(this);
         vlayout->addWidget(btn);
@@ -44,8 +44,7 @@ public:
     TestWnd *mainWindow = nullptr;
 
     x::Result init(I_Ctx* ctx) override {
-        g_log = ctx->log();
-        g_ctx = ctx;
+        NB_GLOBAL_INIT(ctx);
         if (!g_log) 
             return x::Result(1,"Log interface not found");
         ctx->evt()->sub("ui.main.init", "QtUI", [this,ctx](const EvtMsg& msg, const x::Struct& d)->x::Result {

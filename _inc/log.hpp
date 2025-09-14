@@ -257,6 +257,8 @@ public:
         fileSize_ += data.size();
         if(fileSize_ > 50 * 1024 * 1024)
             switchFile();
+        else
+            time2Save();
         return true;
     }
 
@@ -272,10 +274,22 @@ public:
         write(item.toString());
     }
 
+protected:
+    void time2Save(){
+        const auto nowTime = x::timestamp_ms();
+        if(nowTime - lastSaveTime_ > 100){
+            lastSaveTime_ = nowTime;
+            file_.flush();
+            file_.close();
+            open(path_);
+        }
+    }
+
 private:
     x::str             path_;
     std::fstream       file_;
     size_t             fileSize_ = 0;
+    size_t             lastSaveTime_ = 0;
 };
 
 class Log : public I_Log,public I_LogListener

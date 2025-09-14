@@ -80,6 +80,7 @@ target_link_libraries(${PROJECT_NAME}_test PRIVATE gtest_main)
 # Add test
 add_test(NAME ${PROJECT_NAME}_test COMMAND ${PROJECT_NAME}_test)
 
+
 # Plugin test libraries
 add_library(test_plugin1 MODULE
     integrate_test/plugin_test1.cpp

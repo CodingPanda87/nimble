@@ -63,6 +63,7 @@ add_executable(${PROJECT_NAME}_test
           test/test_iii_mempl.cpp
           test/test_mempool.cpp
           test/test_prop.cpp
+          test/test_concurrent.cpp
           src/plugin_admin.cpp
           src/sys.cpp
           test/test_sys.cpp

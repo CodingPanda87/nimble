@@ -76,6 +76,7 @@ add_executable(${PROJECT_NAME}_test
           src/plugin_admin.cpp
           src/sys.cpp
           test/test_sys.cpp
+          test/test_json_helper.cpp
           )
 target_include_directories(${PROJECT_NAME}_test
           PRIVATE

@@ -34,6 +34,15 @@ if(WIN32)
     set_target_properties(${PROJECT_NAME} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
 endif()
 
+# Position-independent code required for shared libraries and modules
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    # Enable position-independent code for shared libraries and modules
+    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+    # 链接 pthread（如果用 backtrace）
+    target_link_libraries(${PROJECT_NAME} pthread)
+endif()
+
+
 # solve vs compiler no find output library sometimes
 link_directories(${CMAKE_CURRENT_BINARY_DIR})
 

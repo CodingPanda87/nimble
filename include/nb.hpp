@@ -10,6 +10,7 @@
 #include "config.hpp"
 #include "api.hpp"
 
+#include "core/dump.hpp"
 #include "core/file.hpp"
 #include "core/memory.hpp"
 #include "core/sys.hpp"

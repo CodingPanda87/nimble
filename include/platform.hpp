@@ -23,6 +23,7 @@ public:
     x::Result   init(x::cStr &cfgPath = "",const bool& isUI = false);
     void        pump(); // only for console
     void        stop();
+    const int&  isInited() const noexcept { return isInited_; }
     
     static std::string pluginInfo(x::cStr& path);
 
@@ -49,9 +50,13 @@ public:
 protected:
     Platform():I_Ctx() {}
 
+           void initInner(const std::string& cfgPath);
+    static void main_worker(Platform *p, std::string cfgPath);
+
     mutable std::shared_mutex           mtx_;
     std::unordered_map<x::str, ITF*>   itfs_;
-    bool                               running_ = false;  
+    bool                               running_ = false; 
+    int                               isInited_ = -1; // for ui async init
 };
 
 } // namespace nb

@@ -28,13 +28,6 @@ Event               g_evtObj;
 ThreadPoolAdmin*    g_threadPoolAdmin = ThreadPoolAdmin::instance();
 MemPool             g_memPool;
 
-void main_worker(Platform *p){
-    while(p->isRunning()){
-        p->pump();
-        x::sleep(3);
-    }
-}
-
 void config_log(const nlohmann::json &j){
     if(j.contains("filter")){
         auto const& flt = j["filter"];
@@ -54,27 +47,32 @@ Platform*  Platform::instance()
 
 void say_hello()
 {
-LOG_INFO("hello",R"(
-
-                                _   _   ____    
-                               | \ | | | __ )   
-                               |  \| | |  _ \   
-                               | |\  | | |_) |  
-                               |_| \_| |____/   
-
-)");
+    std::vector<std::string> nbArt = {
+        "*     *  ***** ",
+        "**    *  *    *",
+        "* *   *  *    *",
+        "*  *  *  ***** ",
+        "*   * *  *    *",
+        "*    **  *    *",
+        "*     *  ***** "
+    };
+    std::string nbArtStr = "\n\t\t\t\t\t\t";
+    for(auto& s : nbArt){
+        nbArtStr += s;
+        nbArtStr += "\n\t\t\t\t\t\t";
+    }
+    LOG_INFO("hello",_fmt("\n{}",nbArtStr));
 }
 
-x::Result Platform::init(x::cStr &cfgPath, const bool& isUI)
+void  Platform::initInner(const std::string& cfgPath)
 {
-    if(sys::has_only(_fmt("nb:{}",sys::proc_id())))
-        return x::Result(1,"Platform already inited !");
-    g_log = &g_logObj;
-    say_hello();
     const x::str cfgFilePath =  cfgPath == "" ? PATH_CFG_PLAT : cfgPath;
     std::ifstream f(cfgFilePath);
-    if(!f.is_open())
-        return x::Result(1,_fmt("open cfg file = {} failed !",cfgFilePath));
+    if(!f.is_open()){
+        isInited_ = 1;
+        LOG_ERROR("Plantform init",_fmt("open cfg file = {} failed !",cfgFilePath));
+        return;
+    }
     try{
         auto j = nlohmann::json::parse(f);
         // ---------- load plugins ----------
@@ -104,13 +102,38 @@ x::Result Platform::init(x::cStr &cfgPath, const bool& isUI)
         // ---------- config log ----------
         if(j.contains("log"))
             config_log(j["log"]);
+        isInited_ = 0;
+        return;
     }catch(const std::exception& e){
-        return x::Result(2,_fmt("parse cfg file = {} failed ! json error = \n {}",cfgFilePath,e.what()));
+        LOG_ERROR("Plantform init",_fmt("parse cfg file = {} failed ! json error = \n {}",cfgFilePath,e.what()));
     }
+    isInited_ = 2;
+}
+
+void Platform::main_worker(Platform *p,std::string cfgPath){
+    p->initInner(cfgPath);
+    if(p->isInited_ > 0)
+        return;
+    while(p->isRunning()){
+        p->pump();
+        x::sleep(3);
+    }
+}
+
+x::Result Platform::init(x::cStr &cfgPath, const bool& isUI)
+{
+    if(sys::has_only(_fmt("nb:{}",sys::proc_id())))
+        return x::Result(1,"Platform already inited !");
+    g_log = &g_logObj;
+    say_hello();
     running_ = true;
     if(isUI){
-        g_mainThread = std::thread(main_worker,this);
+        g_mainThread = std::thread(main_worker,this,cfgPath);
         g_mainThread.detach();
+    }else{
+        initInner(cfgPath);
+        if(!isInited_)
+            return x::Result(1,"Platform init failed !");
     }
     g_memory = Memory::instance();
     return x::Result::OK();

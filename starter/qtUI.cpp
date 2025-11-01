@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
             return 1;
         }
     }
-   
+    nb::InstallCrashHandler();
     QApplication app(argc, argv);
     QObject::connect(&g_exitSignal, &ExitSignal::sigExit, qApp,[&app](){
         app.exit(0);
@@ -81,6 +81,11 @@ int main(int argc, char *argv[]) {
         std::cout << "platform init failed:\n" << ret.message() << std::endl;
         return 1;
     }
+    while(platform.isInited() < 0){
+        x::sleep(10);
+    }
+    if(platform.isInited() > 0)
+        return 2;
     platform.evt()->pub(_make_msg("ui.main.init","main"),x::Struct());
     platform.log()->info("test",_fmt("argc = {}",argc),_code_info());
     if(argc == 2)

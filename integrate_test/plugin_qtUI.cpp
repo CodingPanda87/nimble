@@ -4,6 +4,8 @@
 #include <QPushButton>
 #include <QLabel>
 
+#define TEST_DUMP
+
 NB_GLOBAL()
 
 class TestWnd: public QMainWindow {
@@ -13,9 +15,14 @@ public:
         auto vlayout = new QVBoxLayout();
         auto btn = new QPushButton("fire", this);
         connect(btn, &QPushButton::clicked, this, [this]() {
+#ifdef TEST_DUMP
+            int * a = nullptr;
+            *a = 100;
+#else
             cnt_++;
             PUB_EVT_ONE("ui.test.fire", "btn",cnt_);
             LOG_INFO("TestQtUI", _fmt("Button clicked, count: {}", cnt_));
+#endif
         });
         SUB_EVT("ui.test.fire", "TestQtUI", [this](const nb::EvtMsg& msg, const x::Struct& d)->x::Result {
             LOG_INFO("TestQtUI", _fmt("Received fire event, count: {}", d.getOnly1<int>()));

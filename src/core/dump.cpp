@@ -6,11 +6,15 @@
 #include <dbghelp.h>
 #include <iostream>
 #include <string>
+#include "x/x.hpp"
 
 #pragma comment(lib, "dbghelp.lib")
 
 LONG WINAPI CrashHandler(EXCEPTION_POINTERS* ExceptionInfo) {
-    std::string dumpFile = "crash.dmp";
+    const auto nw = x::Time::now();
+    std::string dumpFile = _fmt("crash_{:02}{:02}{:02}_{:02}{:02}{:02}_{}.dmp", nw.year()-2000, nw.month(), nw.day(),
+        nw.hour() + 8, nw.minute(), nw.second(), nw.microseconds());
+
     HANDLE hFile = CreateFileA(
         dumpFile.c_str(),
         GENERIC_WRITE,

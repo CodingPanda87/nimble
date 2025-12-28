@@ -132,7 +132,7 @@ x::Result Platform::init(x::cStr &cfgPath, const bool& isUI)
         g_mainThread.detach();
     }else{
         initInner(cfgPath);
-        if(!isInited_)
+        if(isInited_ != 0)
             return x::Result(1,"Platform init failed !");
     }
     g_memory = Memory::instance();

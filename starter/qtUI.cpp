@@ -87,9 +87,6 @@ int main(int argc, char *argv[]) {
     if(platform.isInited() > 0)
         return 2;
     platform.evt()->pub(_make_msg("ui.main.init","main"),x::Struct());
-    platform.log()->info("test",_fmt("argc = {}",argc),_code_info());
-    if(argc == 2)
-        platform.log()->info("test",_fmt("argv = {}",argv[1]),_code_info());
 
     QObject::connect(&app, &QApplication::aboutToQuit, []() {
         nb::Platform::instance()->stop();

@@ -1,3 +1,4 @@
+#include "nb.hpp"
 
 #ifdef _WIN32
 
@@ -46,6 +47,7 @@ LONG WINAPI CrashHandler(EXCEPTION_POINTERS* ExceptionInfo) {
 
     CloseHandle(hFile);
     std::cout << "Dump written to: " << dumpFile << std::endl;
+    if(nb::g_log) nb::g_log->flush();
 
     return EXCEPTION_EXECUTE_HANDLER;
 }

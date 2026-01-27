@@ -14,6 +14,7 @@
 #include "event.hpp"
 #include "nb.hpp"
 #include "mem_pool.hpp"
+#include <filesystem>
 
 NB_GLOBAL()
 
@@ -64,13 +65,28 @@ void say_hello()
     LOG_INFO("hello",_fmt("\n{}",nbArtStr));
 }
 
+inline std::string toAbsPath(const std::string& path) {
+    try {
+        return std::filesystem::absolute(path).string();
+    }
+    catch (const std::filesystem::filesystem_error& e) {
+        LOG_ERROR("Plantform init", _s("toAbsPath error = ") + e.what());
+        return "";
+    }
+}
+
 void  Platform::initInner(const std::string& cfgPath)
 {
     const x::str cfgFilePath =  cfgPath == "" ? PATH_CFG_PLAT : cfgPath;
-    std::ifstream f(cfgFilePath);
-    if(!f.is_open()){
+    const auto absPath = toAbsPath(cfgFilePath);
+    if (absPath == "") {
         isInited_ = 1;
-        LOG_ERROR("Plantform init",_fmt("open cfg file = {} failed !",cfgFilePath));
+        return;
+    }
+    std::ifstream f(absPath);
+    if(!f.is_open()){
+        isInited_ = 2;
+        LOG_ERROR("Plantform init",_fmt("open cfg file = {} failed !", absPath));
         return;
     }
     try{
@@ -107,13 +123,15 @@ void  Platform::initInner(const std::string& cfgPath)
     }catch(const std::exception& e){
         LOG_ERROR("Plantform init",_fmt("parse cfg file = {} failed ! json error = \n {}",cfgFilePath,e.what()));
     }
-    isInited_ = 2;
+    isInited_ = 3;
 }
 
 void Platform::main_worker(Platform *p,std::string cfgPath){
     p->initInner(cfgPath);
-    if(p->isInited_ > 0)
+    if (p->isInited_ > 0) {
+        p->pump(); // dump log
         return;
+    }
     while(p->isRunning()){
         p->pump();
         x::sleep(3);
